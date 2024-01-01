@@ -1,0 +1,102 @@
+version: "3.6"
+services:
+  web:
+    container_name: blsweb-react
+    image: blsweb:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - "3000:3000"
+    restart: always
+    command: yarn dev
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next      
+    depends_on:
+      - graphql-engine
+      - redis
+      - data-connector-agent
+  postgres:
+    container_name: blsweb-postgres
+    image: postgres:16.0
+    ports:
+      - "54321:5432"
+    volumes:
+      - blsweb-data:/var/lib/postgresql/data
+      - /tmp:/tmp
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=blsweb
+    restart: unless-stopped
+    logging:
+      options:
+        max-size: 10m
+  redis:
+    container_name: blsweb-redis
+    image: redis:7.0.12
+    restart: always
+    ports:
+      - '63791:6379'
+    command: redis-server --save 19 1 --loglevel warning
+    volumes:
+      - redis:/data             
+  graphql-engine:
+    container_name: blsweb-graphql-engine
+    image: hasura/graphql-engine:v2.35.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      ## postgres database to store Hasura metadata
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:docker@host.docker.internal:5432/postgres
+      ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
+      PG_DATABASE_URL: postgres://postgres:docker@host.docker.internal:5432/blsweb
+      ## enable the console served by server
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      # JDBC url to connect to Snowflake
+      SNOWFLAKE_JDBC_URL: jdbc:snowflake://xg40620.us-central1.gcp.snowflakecomputing.com/?user=BLS_WEB&password=Uyq%kK6A0DRB&warehouse=BLUESKY_TEST_WH&db=BLUESKY_DP0&schema=PUBLIC&role=ACCOUNTADMIN
+      ## enable debugging mode. It is recommended to disable this in production
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      ## uncomment next line to run console offline (i.e load console assets from server instead of CDN)
+      # HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
+      ## uncomment next line to set an admin secret
+      HASURA_GRAPHQL_ADMIN_SECRET: 7F9A2172-A9D5-4E61-B14B-0D826CDF225A
+      HASURA_GRAPHQL_ENABLE_ALLOWLIST: true
+      HASURA_GRAPHQL_REDIS_URL: redis://host.docker.internal:6379
+      HASURA_GRAPHQL_METADATA_DEFAULTS: '{"backend_configs":{"dataconnector":{"athena":{"uri":"http://data-connector-agent:8081/api/v1/athena"},"mariadb":{"uri":"http://data-connector-agent:8081/api/v1/mariadb"},"mysql8":{"uri":"http://data-connector-agent:8081/api/v1/mysql"},"oracle":{"uri":"http://data-connector-agent:8081/api/v1/oracle"},"snowflake":{"uri":"http://data-connector-agent:8081/api/v1/snowflake"}}}}'
+    depends_on:
+      data-connector-agent:
+        condition: service_healthy
+  data-connector-agent:
+    container_name: blsweb-data-connector-agent
+    image: hasura/graphql-data-connector:v2.35.1
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      QUARKUS_LOG_LEVEL: ERROR # FATAL, ERROR, WARN, INFO, DEBUG, TRACE
+      ## https://quarkus.io/guides/opentelemetry#configuration-reference
+      QUARKUS_OPENTELEMETRY_ENABLED: "false"
+      ## QUARKUS_OPENTELEMETRY_TRACER_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/api/v1/athena/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 5s 
+volumes:
+  blsweb-data:
+    external: true
+    name: blsweb-data
+  redis:
+    name: blsweb-cache
