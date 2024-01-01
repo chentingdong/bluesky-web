@@ -5,7 +5,7 @@ services:
     image: blsweb:latest
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/web.dockerfile
       target: dev
     ports:
       - "3000:3000"
@@ -43,23 +43,20 @@ services:
     restart: always
     ports:
       - '63791:6379'
-    command: redis-server --save 19 1 --loglevel warning
+    command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis:/data             
   graphql-engine:
     container_name: blsweb-graphql-engine
     image: hasura/graphql-engine:v2.35.1
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     restart: always
     environment:
       ## postgres database to store Hasura metadata
-      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:docker@host.docker.internal:5432/postgres
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:docker@host.docker.internal:54321/postgres
       ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
-      PG_DATABASE_URL: postgres://postgres:docker@host.docker.internal:5432/blsweb
+      PG_DATABASE_URL: postgres://postgres:docker@host.docker.internal:54321/blsweb
       ## enable the console served by server
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
       # JDBC url to connect to Snowflake
@@ -72,7 +69,7 @@ services:
       ## uncomment next line to set an admin secret
       HASURA_GRAPHQL_ADMIN_SECRET: 7F9A2172-A9D5-4E61-B14B-0D826CDF225A
       HASURA_GRAPHQL_ENABLE_ALLOWLIST: true
-      HASURA_GRAPHQL_REDIS_URL: redis://host.docker.internal:6379
+      HASURA_GRAPHQL_REDIS_URL: redis://host.docker.internal:63791
       HASURA_GRAPHQL_METADATA_DEFAULTS: '{"backend_configs":{"dataconnector":{"athena":{"uri":"http://data-connector-agent:8081/api/v1/athena"},"mariadb":{"uri":"http://data-connector-agent:8081/api/v1/mariadb"},"mysql8":{"uri":"http://data-connector-agent:8081/api/v1/mysql"},"oracle":{"uri":"http://data-connector-agent:8081/api/v1/oracle"},"snowflake":{"uri":"http://data-connector-agent:8081/api/v1/snowflake"}}}}'
     depends_on:
       data-connector-agent:
@@ -99,4 +96,4 @@ volumes:
     external: true
     name: blsweb-data
   redis:
-    name: blsweb-cache
+    name: bsredis
