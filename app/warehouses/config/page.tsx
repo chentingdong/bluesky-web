@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback } from 'react'; // Corrected useState import
+import { useCallback, useMemo } from 'react'; // Corrected useState import
 import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 import 'ag-grid-enterprise';
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
-import { ColDef, GridReadyEvent } from 'ag-grid-community';
+import { ColDef, GridReadyEvent, TextFilterModel, NumberFilterModel } from 'ag-grid-community';
+import { ICombinedSimpleModel } from 'ag-grid-community/dist/lib/filter/provided/simpleFilter';
 import { createWarehouseDataSource } from '@/graphql/warehouses';
 
 type Props = {};
@@ -19,27 +20,37 @@ interface Warehouse {
   UTILIZATION: number;
 }
 
+interface Filter {
+  WAREHOUSE_NAME?: TextFilterModel | ICombinedSimpleModel<TextFilterModel>;
+  WAREHOUSE_SIZE?: TextFilterModel | ICombinedSimpleModel<TextFilterModel>;
+  AUTO_SUSPEND?: NumberFilterModel | ICombinedSimpleModel<NumberFilterModel>;
+  QUERY_CREDIT?: TextFilterModel | ICombinedSimpleModel<TextFilterModel>;
+  COST_HISTORY?: NumberFilterModel | ICombinedSimpleModel<NumberFilterModel>;
+  UTILIZATION?: NumberFilterModel | ICombinedSimpleModel<NumberFilterModel>;
+}
+
 const WarehouseListView = (props: Props) => {
   const colDefs: ColDef[] = [
-    { field: "WAREHOUSE_NAME", filter: 'agSetColumnFilter' },
-    { field: "WAREHOUSE_SIZE", filter: 'agSetColumnFilter' },
-    { field: "AUTO_SUSPEND", filter: 'agSetColumnFilter', maxWidth: 100 },
-    { field: "QUERY_CREDIT", filter: 'agSetColumnFilter' },
+    { field: "WAREHOUSE_NAME", filter: 'agTextColumnFilter' },
+    { field: "WAREHOUSE_SIZE", filter: 'agTextColumnFilter' },
+    { field: "AUTO_SUSPEND", filter: 'agNumberColumnFilter', maxWidth: 100 },
+    { field: "QUERY_CREDIT", filter: 'agNumberColumnFilter' },
     { field: "COST_HISTORY", filter: 'agNumberColumnFilter' },
     { field: "UTILIZATION", filter: 'agNumberColumnFilter' },
   ];
 
-  const sortModel = [
-    {
-      colId: 'WAREHOUSE_NAME',
-      sort: 'asc',
-    },
-  ];
-  
   const onGridReady = useCallback((params: GridReadyEvent) => {
     const gridApi = params.api;
     const dataSource = createWarehouseDataSource();
     gridApi.setGridOption('serverSideDatasource', dataSource);
+  }, []);
+
+  const defaultColDef = useMemo<ColDef>(() => {
+    return {
+      flex: 1,
+      minWidth: 100,
+      menuTabs: ['filterMenuTab'],
+    };
   }, []);
 
   return (
@@ -48,6 +59,7 @@ const WarehouseListView = (props: Props) => {
       <AgGridReact<Warehouse>
         className='ag-theme-quartz-auto-dark'
         columnDefs={colDefs}
+        defaultColDef={defaultColDef}
         pagination={true}
         paginationPageSize={10}
         cacheBlockSize={10}

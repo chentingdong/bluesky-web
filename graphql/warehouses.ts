@@ -5,11 +5,13 @@ const operationsDocData = `
     $limit: Int!, 
     $offset: Int!,
     $order_by: [WAREHOUSES_order_by!]
+    $filter_by: WAREHOUSES_bool_exp
   ) @cached {
     WAREHOUSES(
       limit: $limit
       offset: $offset
       order_by: $order_by
+      where: $filter_by
     ) {
       WAREHOUSE_SIZE
       WAREHOUSE_NAME
@@ -21,11 +23,12 @@ const operationsDocData = `
   }
 `;
 
-export async function fetchWarehouses(limit: number, offset: number, order_by: any) {
+export async function fetchWarehouses(limit: number, offset: number, order_by: any, filter_by: any) {
+  console.log(filter_by)
   const response = await fetchGraphQL(
     operationsDocData,
     "Warehouses",
-    {limit, offset, order_by}
+    {limit, offset, order_by, filter_by}
   );
   return response.data?.WAREHOUSES || [];
 }
@@ -50,6 +53,12 @@ function fetchWarehouseCount() {
   });
 }
 
+interface FilterModel {
+  type: string;
+  filterType: string;
+  filter: any;
+}
+
 export function createWarehouseDataSource() {
   return {
     getRows: (params: any) => {
@@ -58,21 +67,30 @@ export function createWarehouseDataSource() {
       //server side pagination
       const limit = endRow - startRow;
       const offset = startRow;
-      
+
       //server side sorting
       const order_by: { [key: string]: string } = {};
       params.request.sortModel.forEach((item: any) => {
         order_by[item.colId] = item.sort.toLowerCase();
       });
-      
-      const response = fetchWarehouses(limit, offset, order_by).then((response) => {  
+
+      // server side filtering
+      const filter_by: { [key: string]: { [type: string]: string } } = {};
+      Object.entries(params.request.filterModel).forEach(([key, value]) => {
+        const { type, filter } = value as FilterModel;
+        filter_by[key] = { [type]: filter };
+      });
+
+      const response = fetchWarehouses(limit, offset, order_by, filter_by).then((response) => {
         params.success({
           rowData: response,
           rowCount: fetchWarehouseCount()
         });
       });
-      
+
       return response;
     }
   }
 }
+
+
