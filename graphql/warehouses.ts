@@ -1,8 +1,11 @@
 import { fetchGraphQL } from './client';
 
 const operationsDoc = `
-  query Warehouses {
-    WAREHOUSES(where: {}) {
+  query Warehouses($limit: Int!, $offset: Int!) {
+    WAREHOUSES(
+      limit: $limit
+      offset: $offset
+    ) {
       WAREHOUSE_SIZE
       WAREHOUSE_NAME
       AUTO_SUSPEND
@@ -13,12 +16,11 @@ const operationsDoc = `
   }
 `;
 
-export async function fetchWarehouses() {
+export async function fetchWarehouses(limit: number, offset: number) {
   const response = await fetchGraphQL(
     operationsDoc,
     "Warehouses",
-    {}
+    {limit, offset}
   );
-  return response.data.WAREHOUSES;
+  return response.data?.WAREHOUSES || [];
 }
-

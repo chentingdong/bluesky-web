@@ -18,13 +18,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className} >
-        <section className='grid grid-cols-12 p-4 h-dvh'>
+      <body className='h-dvh'>
+        <section className='grid grid-cols-12 p-4 h-full'>
           <aside className='col-span-2 border-r p-4'>
             <h2>Bluesky</h2>
             <Sidebar menus={sideMenu} />
           </aside>
-          <main className='col-span-10 p-4'>
+          <main className='col-span-10 p-4 h-full'>
             {children}
           </main>
         </section>

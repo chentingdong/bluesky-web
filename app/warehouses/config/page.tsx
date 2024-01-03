@@ -1,40 +1,57 @@
-'use client'
+'use client';
 
 import React, { use, useEffect, useState } from 'react'; // Corrected useState import
 import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
-import { ColDef, GridOptions } from 'ag-grid-community';
+import { ColDef, GridOptions, IServerSideDatasource, createGrid } from 'ag-grid-community';
 import { fetchWarehouses } from '@/graphql/warehouses';
 
-type Props = {}
+type Props = {};
+
+interface Warehouse {
+  WAREHOUSE_NAME: string;
+  WAREHOUSE_SIZE: string;
+  AUTO_SUSPEND: string;
+  QUERY_CREDIT: string;
+  COST_HISTORY: string;
+  UTILIZATION: string;
+}
 
 const WarehouseListView = (props: Props) => {
-  // Row Data: The data to be displayed.
   const [rowData, setRowData] = useState([]);
-  
-  // Column Definitions: Defines & controls grid columns.
-  const [colDefs, setColDefs] = useState<ColDef[]>([
-    { field: "WAREHOUSE_NAME", filter: 'agSetColumnFilter'},
-    { field: "WAREHOUSE_SIZE" },
-    { field: "AUTO_SUSPEND" },
-    { field: "QUERY_CREDIT" },
-    { field: "COST_HISTORY" },
-    { field: "UTILIZATION" },
-  ]);
+
+  const colDefs: ColDef[] = [
+    { field: "WAREHOUSE_NAME", filter: 'agSetColumnFilter' },
+    { field: "WAREHOUSE_SIZE", filter: 'agSetColumnFilter' },
+    { field: "AUTO_SUSPEND", filter: 'agSetColumnFilter', maxWidth: 100 },
+    { field: "QUERY_CREDIT", filter: 'agSetColumnFilter' },
+    { field: "COST_HISTORY", filter: 'agNumberColumnFilter' },
+    { field: "UTILIZATION", filter: 'agNumberColumnFilter' },
+  ];
 
   useEffect(() => {
-    fetchWarehouses().then(data => {
+    fetchWarehouses(10, 10).then(data => {
       setRowData(data);
     });
-  });
+  }, []);
+
+
 
   return (
-    <div className='h-dvh'>
+    <div className='h-768'>
       <h1>Warehouses</h1>
-      <AgGridReact rowData={rowData} columnDefs={colDefs} className="ag-theme-quartz-auto-dark"/>
+      <AgGridReact
+        className='ag-theme-quartz'
+        rowData={rowData}
+        columnDefs={colDefs}
+        pagination={true}
+        paginationPageSize={10}
+        cacheBlockSize={10}
+        rowModelType='serverSide'
+      />
     </div>
   );
-}
+};
 
 export default WarehouseListView;
