@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react'; // Corrected useState import
+import { useCallback } from 'react'; // Corrected useState import
 import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 import 'ag-grid-enterprise';
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
@@ -13,15 +13,13 @@ type Props = {};
 interface Warehouse {
   WAREHOUSE_NAME: string;
   WAREHOUSE_SIZE: string;
-  AUTO_SUSPEND: string;
+  AUTO_SUSPEND: number;
   QUERY_CREDIT: string;
-  COST_HISTORY: string;
-  UTILIZATION: string;
+  COST_HISTORY: number;
+  UTILIZATION: number;
 }
 
 const WarehouseListView = (props: Props) => {
-  const [rowData, setRowData] = useState([]);
-
   const colDefs: ColDef[] = [
     { field: "WAREHOUSE_NAME", filter: 'agSetColumnFilter' },
     { field: "WAREHOUSE_SIZE", filter: 'agSetColumnFilter' },
@@ -31,6 +29,13 @@ const WarehouseListView = (props: Props) => {
     { field: "UTILIZATION", filter: 'agNumberColumnFilter' },
   ];
 
+  const sortModel = [
+    {
+      colId: 'WAREHOUSE_NAME',
+      sort: 'asc',
+    },
+  ];
+  
   const onGridReady = useCallback((params: GridReadyEvent) => {
     const gridApi = params.api;
     const dataSource = createWarehouseDataSource();
@@ -41,7 +46,7 @@ const WarehouseListView = (props: Props) => {
     <div className='h-768'>
       <h1>Warehouses</h1>
       <AgGridReact<Warehouse>
-        className='ag-theme-quartz'
+        className='ag-theme-quartz-auto-dark'
         columnDefs={colDefs}
         pagination={true}
         paginationPageSize={10}

@@ -1,10 +1,15 @@
 import { fetchGraphQL } from './client';
 
 const operationsDocData = `
-  query Warehouses($limit: Int!, $offset: Int!) @cached {
+  query Warehouses(
+    $limit: Int!, 
+    $offset: Int!,
+    $order_by: [WAREHOUSES_order_by!]
+  ) @cached {
     WAREHOUSES(
       limit: $limit
       offset: $offset
+      order_by: $order_by
     ) {
       WAREHOUSE_SIZE
       WAREHOUSE_NAME
@@ -16,11 +21,11 @@ const operationsDocData = `
   }
 `;
 
-export async function fetchWarehouses(limit: number, offset: number) {
+export async function fetchWarehouses(limit: number, offset: number, order_by: any) {
   const response = await fetchGraphQL(
     operationsDocData,
     "Warehouses",
-    {limit, offset}
+    {limit, offset, order_by}
   );
   return response.data?.WAREHOUSES || [];
 }
@@ -49,14 +54,24 @@ export function createWarehouseDataSource() {
   return {
     getRows: (params: any) => {
       const { startRow, endRow } = params.request;
+
+      //server side pagination
       const limit = endRow - startRow;
       const offset = startRow;
-      const response = fetchWarehouses(limit, offset).then((response) => {  
+      
+      //server side sorting
+      const order_by: { [key: string]: string } = {};
+      params.request.sortModel.forEach((item: any) => {
+        order_by[item.colId] = item.sort.toLowerCase();
+      });
+      
+      const response = fetchWarehouses(limit, offset, order_by).then((response) => {  
         params.success({
           rowData: response,
           rowCount: fetchWarehouseCount()
         });
       });
+      
       return response;
     }
   }
