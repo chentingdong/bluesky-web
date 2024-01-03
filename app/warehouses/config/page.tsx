@@ -1,11 +1,12 @@
 'use client';
 
-import React, { use, useEffect, useState } from 'react'; // Corrected useState import
+import { useCallback, useState } from 'react'; // Corrected useState import
 import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
+import 'ag-grid-enterprise';
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
-import { ColDef, GridOptions, IServerSideDatasource, createGrid } from 'ag-grid-community';
-import { fetchWarehouses } from '@/graphql/warehouses';
+import { ColDef, GridReadyEvent } from 'ag-grid-community';
+import { createWarehouseDataSource } from '@/graphql/warehouses';
 
 type Props = {};
 
@@ -30,25 +31,23 @@ const WarehouseListView = (props: Props) => {
     { field: "UTILIZATION", filter: 'agNumberColumnFilter' },
   ];
 
-  useEffect(() => {
-    fetchWarehouses(10, 10).then(data => {
-      setRowData(data);
-    });
+  const onGridReady = useCallback((params: GridReadyEvent) => {
+    const gridApi = params.api;
+    const dataSource = createWarehouseDataSource();
+    gridApi.setGridOption('serverSideDatasource', dataSource);
   }, []);
-
-
 
   return (
     <div className='h-768'>
       <h1>Warehouses</h1>
-      <AgGridReact
+      <AgGridReact<Warehouse>
         className='ag-theme-quartz'
-        rowData={rowData}
         columnDefs={colDefs}
         pagination={true}
         paginationPageSize={10}
         cacheBlockSize={10}
-        rowModelType='serverSide'
+        rowModelType={'serverSide'}
+        onGridReady={onGridReady}
       />
     </div>
   );

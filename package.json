@@ -11,6 +11,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.8",
     "ag-grid-community": "^31.0.1",
+    "ag-grid-enterprise": "^31.0.1",
     "ag-grid-react": "^31.0.0",
     "graphql": "^16.8.1",
     "next": "14.0.4",
