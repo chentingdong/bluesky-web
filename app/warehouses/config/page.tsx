@@ -5,9 +5,9 @@ import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 import 'ag-grid-enterprise';
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
-import { ColDef, GridReadyEvent, TextFilterModel, NumberFilterModel } from 'ag-grid-community';
-import { ICombinedSimpleModel } from 'ag-grid-community/dist/lib/filter/provided/simpleFilter';
+import { ColDef, GridReadyEvent } from 'ag-grid-community';
 import { createWarehouseDataSource } from '@/graphql/warehouses';
+import GlobalDateFilter from '@/app/components/globalDateFilter';
 
 type Props = {};
 
@@ -18,15 +18,6 @@ interface Warehouse {
   QUERY_CREDIT: string;
   COST_HISTORY: number;
   UTILIZATION: number;
-}
-
-interface Filter {
-  WAREHOUSE_NAME?: TextFilterModel | ICombinedSimpleModel<TextFilterModel>;
-  WAREHOUSE_SIZE?: TextFilterModel | ICombinedSimpleModel<TextFilterModel>;
-  AUTO_SUSPEND?: NumberFilterModel | ICombinedSimpleModel<NumberFilterModel>;
-  QUERY_CREDIT?: TextFilterModel | ICombinedSimpleModel<TextFilterModel>;
-  COST_HISTORY?: NumberFilterModel | ICombinedSimpleModel<NumberFilterModel>;
-  UTILIZATION?: NumberFilterModel | ICombinedSimpleModel<NumberFilterModel>;
 }
 
 const WarehouseListView = (props: Props) => {
@@ -56,6 +47,7 @@ const WarehouseListView = (props: Props) => {
   return (
     <div className='h-768'>
       <h1>Warehouses</h1>
+      <GlobalDateFilter />
       <AgGridReact<Warehouse>
         className='ag-theme-quartz-auto-dark'
         columnDefs={colDefs}

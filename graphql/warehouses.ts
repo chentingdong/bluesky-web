@@ -24,7 +24,6 @@ const operationsDocData = `
 `;
 
 export async function fetchWarehouses(limit: number, offset: number, order_by: any, filter_by: any) {
-  console.log(filter_by)
   const response = await fetchGraphQL(
     operationsDocData,
     "Warehouses",
@@ -50,7 +49,10 @@ function fetchWarehouseCount() {
     {}
   ).then((response) => {
     return response.data?.WAREHOUSES_aggregate.aggregate?.count || 0;
-  });
+  }).catch((error) => {
+    console.error(error);
+    return 0; 
+  })
 }
 
 interface FilterModel {

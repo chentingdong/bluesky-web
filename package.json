@@ -13,15 +13,18 @@
     "ag-grid-community": "^31.0.1",
     "ag-grid-enterprise": "^31.0.1",
     "ag-grid-react": "^31.0.0",
+    "date-fns": "^3.0.6",
     "graphql": "^16.8.1",
     "next": "14.0.4",
     "react": "^18",
+    "react-date-range": "^2.0.0-alpha.4",
     "react-dom": "^18",
     "react-icons": "^4.12.0"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-date-range": "^1.4.9",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.16",
     "eslint": "^8",
