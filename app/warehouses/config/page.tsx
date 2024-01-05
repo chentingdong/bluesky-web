@@ -8,6 +8,7 @@ import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import { ColDef, GridReadyEvent } from 'ag-grid-community';
 import { createWarehouseDataSource } from '@/graphql/warehouses';
 import GlobalDateFilter from '@/app/components/globalDateFilter';
+import { ButtonRenderer, currencyFormatter } from '@/app/helpers/CellRenderers';
 
 type Props = {};
 interface Warehouse {
@@ -18,19 +19,21 @@ interface Warehouse {
   QUERY_CREDIT: string;
   UTILIZATION: number;
   ANNUAL_WASTE_USD: number;
+  FINDING_IDS: string[];
 }
 
 const WarehouseListView = (props: Props) => {
-  const dateRange = {startDate: '2023-11-01', endDate: '2024-01-01'}
+  const dateRange = {startDate: '2023-09-01', endDate: '2024-01-01'}
 
   const colDefs: ColDef[] = [
     { field: "WAREHOUSE_NAME", filter: 'agTextColumnFilter' },
     { field: "WAREHOUSE_SIZE", filter: 'agTextColumnFilter' },
-    { field: "CLUSTERS", filter: 'agTextColumnFilter' },
+    { field: "CLUSTERS" },
     { field: "AUTO_SUSPEND", filter: 'agNumberColumnFilter', maxWidth: 100 },
-    { field: "QUERY_CREDIT", filter: 'agNumberColumnFilter' },
-    { field: "UTILIZATION", filter: 'agNumberColumnFilter' },
-    { field: "ANNUAL_WASTE_USD", filter: 'agNumberColumnFilter'},
+    { field: "QUERY_CREDIT", filter: 'agNumberColumnFilter', valueFormatter: currencyFormatter },
+    { field: "UTILIZATION", filter: 'agNumberColumnFilter', valueFormatter: currencyFormatter },
+    { field: "ANNUAL_WASTE_USD", filter: 'agNumberColumnFilter', valueFormatter: currencyFormatter },
+    { field: "FINDING_IDS", width: 100, cellRenderer: ButtonRenderer },
   ];
 
   const defaultColDef = useMemo<ColDef>(() => {

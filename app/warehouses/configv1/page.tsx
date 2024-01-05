@@ -7,7 +7,6 @@ import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import { ColDef, GridReadyEvent } from 'ag-grid-community';
 import { createWarehouseDataSource } from '@/graphql/warehouses.v1';
-import GlobalDateFilter from '@/app/components/globalDateFilter';
 
 type Props = {};
 interface Warehouse {
@@ -21,7 +20,6 @@ interface Warehouse {
 }
 
 const WarehouseListView = (props: Props) => {
-  const dateRange = {startDate: '2023-11-01', endDate: '2024-01-01'}
 
   const colDefs: ColDef[] = [
     { field: "WAREHOUSE_NAME", filter: 'agTextColumnFilter' },
@@ -50,7 +48,6 @@ const WarehouseListView = (props: Props) => {
   return (
     <div className='h-768'>
       <h1>Warehouses</h1>
-      <GlobalDateFilter dateRange={dateRange}/>
       <AgGridReact<Warehouse>
         className='ag-theme-quartz-auto-dark'
         columnDefs={colDefs}

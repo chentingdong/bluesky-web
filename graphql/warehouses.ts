@@ -61,12 +61,12 @@ export async function fetchWarehouses(limit: number, offset: number, orderBy: an
       AUTO_SUSPEND: node.AUTO_SUSPEND,
       IDLE_CREDIT: anomalyWarehouse.IDLE_CREDIT,
       QUERY_CREDIT: anomalyWarehouse.QUERY_CREDIT,
-      UTILIZATION: node.TOTAL/(node.TOTAL_COMPUTE_CREDIT+0.01),
+      UTILIZATION: anomalyWarehouse.TOTAL/(anomalyWarehouse.TOTAL_COMPUTE_CREDIT+0.01),
       ANNUAL_WASTE_USD: node.ANNUAL_WASTE_USD,
       FINDING_IDS: node.FINDING_IDS,
     }
   })
-
+  console.log(response.data?.WAREHOUSE_ANOMALY_aggregate.nodes)
   return warehouses || [];
 }
 
