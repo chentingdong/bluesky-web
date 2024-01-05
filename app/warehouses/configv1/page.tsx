@@ -6,7 +6,7 @@ import 'ag-grid-enterprise';
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 import { ColDef, GridReadyEvent } from 'ag-grid-community';
-import { createWarehouseDataSource } from '@/graphql/warehouses';
+import { createWarehouseDataSource } from '@/graphql/warehouses.v1';
 import GlobalDateFilter from '@/app/components/globalDateFilter';
 
 type Props = {};
@@ -26,7 +26,7 @@ const WarehouseListView = (props: Props) => {
   const colDefs: ColDef[] = [
     { field: "WAREHOUSE_NAME", filter: 'agTextColumnFilter' },
     { field: "WAREHOUSE_SIZE", filter: 'agTextColumnFilter' },
-    { field: "CLUSTERS", filter: 'agTextColumnFilter' },
+    { field: "CLUSTERS" },
     { field: "AUTO_SUSPEND", filter: 'agNumberColumnFilter', maxWidth: 100 },
     { field: "QUERY_CREDIT", filter: 'agNumberColumnFilter' },
     { field: "UTILIZATION", filter: 'agNumberColumnFilter' },
@@ -43,7 +43,7 @@ const WarehouseListView = (props: Props) => {
 
   const onGridReady = useCallback((params: GridReadyEvent) => {
     const gridApi = params.api;
-    const dataSource = createWarehouseDataSource(dateRange);
+    const dataSource = createWarehouseDataSource();
     gridApi.setGridOption('serverSideDatasource', dataSource);
   }, []);
 
