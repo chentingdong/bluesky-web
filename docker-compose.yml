@@ -16,11 +16,26 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      - /app/.next      
+      - /app/.next
     depends_on:
       - graphql-engine
       - redis
       - data-connector-agent
+  apollo:
+    container_name: blsweb-apollo
+    image: blsweb-apollo:latest
+    build:
+      context: ./server
+      dockerfile: ../docker/apollo.dockerfile
+    ports:
+      - "4000:4000"
+    command: npm run start
+    restart: always
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./server:/app
+      - /app/node_modules      
   postgres:
     container_name: blsweb-postgres
     image: postgres:16.0
@@ -94,6 +109,6 @@ services:
 volumes:
   blsweb-data:
     external: true
-    name: blsweb-data
+    name: blsweb-data-2
   redis:
     name: bsredis
