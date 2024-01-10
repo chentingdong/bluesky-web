@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,15 +9,26 @@
     "start": "npm run compile && node ./dist/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Bluesky",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@graphql-tools/load": "^8.0.1",
     "@types/node": "^20.10.8",
+    "@types/pg": "^8.10.9",
+    "eslint": "^6.8.0",
+    "jest": "^25.5.4",
     "typescript": "^5.3.3"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
-    "graphql": "^16.8.1"
+    "graphql": ">= 0.6 <= 15",
+    "graphql-tools": ">= 0.4 <= 7",
+    "join-monster": "^3",
+    "join-monster-graphql-tools-adapter": "^0.1.1",
+    "pg": "^8.11.3"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }

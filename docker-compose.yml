@@ -29,7 +29,7 @@ services:
       dockerfile: ../docker/apollo.dockerfile
     ports:
       - "4000:4000"
-    command: npm run start
+    command: yarn run start
     restart: always
     environment:
       - NODE_ENV=development
