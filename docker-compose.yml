@@ -28,7 +28,7 @@ services:
       context: ./server
       dockerfile: ../docker/apollo.dockerfile
     ports:
-      - "4000:4000"
+      - "4001:4000"
     command: yarn run start
     restart: always
     environment:
